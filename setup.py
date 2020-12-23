@@ -12,7 +12,7 @@ setup(
     author='Hugo Flores Garcia',
     author_email='hf01049@georgiasouthern.edu',
     url='https://github.com/hugofloresgarcia/torchopenl3',
-    install_requires=['pytorch-lightning'],
+    install_requires=['pytorch-lightning', 'numpy', 'torch', 'librosa'],
     packages=['torchopenl3'],
     package_data={'torchopenl3': ['assets/*']},
     long_description=long_description,
