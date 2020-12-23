@@ -14,7 +14,7 @@ def embed(model: OpenL3Embedding, audio: np.ndarray, sample_rate: int, hop_size:
         audio (np.ndarray): audio array with shape (channels, samples). 
                             audio will be downmixed to mono. 
         sample_rate (int): input sample rate. Will be resampled to torchopenl3.SAMPLE_RATE
-        hop_size (int, optional): [description]. Defaults to 1.
+        hop_size (int, optional): hop size, in seconds. Defaults to 1.
     Returns:
         np.ndarray: [description]
     """
@@ -22,14 +22,13 @@ def embed(model: OpenL3Embedding, audio: np.ndarray, sample_rate: int, hop_size:
     # resample, downmix, and zero pad if needed
     audio = audio_utils.resample(audio, sample_rate, torchopenl3.SAMPLE_RATE)
     audio = audio_utils.downmix(audio)
-    audio = audio_utils.zero_pad(audio)
+
+    # split audio into overlapping windows as dictated by hop_size
+    hop_len: int = hop_size * torchopenl3.SAMPLE_RATE
+    audio = audio_utils.window(audio, window_len=1*torchopenl3.SAMPLE_RATE, hop_len)
 
     # convert to torch tensor!
     audio = torch.from_numpy(audio)
-
-    # TODO: need to enforce a maximum batch size
-    # to avoid OOM errors
-    audio = audio.view(-1, 1, torchopenl3.sample_rate)
 
     with torch.no_grad():
         embeddings = model(audio)
