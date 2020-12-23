@@ -8,8 +8,10 @@ def _check_audio_types(audio: np.ndarray):
     assert isinstance(audio, np.ndarray), f'expected np.ndarray but got {type(audio)} as input.'
     assert audio.ndim == 2, f'audio must be shape (channels, time), got shape {audio.shape}'
     if audio.shape[-1] < audio.shape[-2]:
-        warnings.warn(f'IALMODELWARNING: got audio shape {audio.shape}. Audio should be (channels, time). \
+        warnings.warn(f'got audio shape {audio.shape}. Audio should be (channels, time). \
                         typically, the number of samples is much larger than the number of channels. ')
+    if _is_zero(audio):
+        warnings.warn(f'provided audio array is all zeros')
 
 def _is_mono(audio: np.ndarray):
     _check_audio_types(audio)
@@ -19,24 +21,11 @@ def _is_mono(audio: np.ndarray):
 def _is_zero(audio: np.ndarray):
     return np.all(audio == 0);
 
-def window(audio: np.ndarray, window_len: int = 48000, hop_len: int = 4800):
-    """split monophonic audio into overlapping windows
-
-    Args:
-        audio (np.ndarray): monophonic audio array with shape (samples,)
-        window_len (int, optional): [description]. Defaults to 48000.
-        hop_len (int, optional): [description]. Defaults to 4800.
-    Returns:
-        windowed audio array with shape (frame, samples)
-    """
-    # copied from openl3.core, which was copied from librosa.util.frame
-    n_frames = 1 + int((len(audio) - window_len) / float(hop_len))
-    audio = np.lib.stride_tricks.as_strided(audio, shape=(window_len, n_frames),
-                                        strides=(audio.itemsize, hop_len * audio.itemsize))
-    return audio
-
 def load_audio_file(path_to_audio, sample_rate=48000):
-    """ wrapper for loading mono audio with librosa
+    """ wrapper for loading monophonic audio with librosa
+    Args:
+        path_to_audio (str): path to audio file
+        sample_rate (int): target sample rate
     returns:
         audio (np.ndarray): monophonic audio with shape (samples,)
     """
@@ -44,6 +33,40 @@ def load_audio_file(path_to_audio, sample_rate=48000):
     # add channel dimension
     audio = np.expand_dims(audio, axis=-2)
     return audio
+
+def window(audio: np.ndarray, window_len: int = 48000, hop_len: int = 4800):
+    """split audio into overlapping windows
+
+    note: this is not a memory efficient view like librosa.util.frame. 
+    It will return a new copy of the array
+
+    Args:
+        audio (np.ndarray): audio array with shape (channels, samples)
+        window_len (int, optional): [description]. Defaults to 48000.
+        hop_len (int, optional): [description]. Defaults to 4800.
+    Returns:
+        audio_windowed (np.ndarray): windowed audio array with shape (frame, channels, samples)
+    """
+    _check_audio_types(audio)
+    # determine how many window_len windows we can get out of the audio array
+    # use ceil because we can zero pad
+    n_chunks = int(np.ceil(len(audio)/(window_len))) 
+    start_idxs = np.arange(0, n_chunks * window_len, hop_len)
+
+    windows = []
+    for start_idx in start_idxs:
+        # end index should be start index + window length
+        end_idx = start_idx + window_len
+        # BUT, if we have reached the end of the audio, stop there
+        end_idx = min([end_idx, len(audio)])
+        # create audio window
+        win = np.array(audio[:, start_idx:end_idx])
+        # zero pad window if needed
+        win = zero_pad(win, required_len=window_len)
+        windows.append(win)
+    
+    audio_windowed = np.stack(windows)
+    return audio_windowed
 
 def downmix(audio: np.ndarray):
     """ downmix an audio array.
