@@ -25,6 +25,12 @@ class OpenL3Embedding(pl.LightningModule):
         utils._check_embedding_size(embedding_size)
         utils._check_content_type(content_type)
 
+        self.input_repr = input_repr
+        self.embedding_size = embedding_size
+        self.content_type = content_type
+        self.pretrained = pretrained
+        self.use_precomputed_spectrograms = use_precomputed_spectrograms
+
         self.use_precomputed_spectrograms = use_precomputed_spectrograms
         if not self.use_precomputed_spectrograms:
             self.filters = _load_spectrogram_model(input_repr)
@@ -34,9 +40,12 @@ class OpenL3Embedding(pl.LightningModule):
         self.flatten = nn.Flatten()
     
     def forward(self, x):
+        print('in', x.shape)
         if not self.use_precomputed_spectrograms:
             x = self.filters(x)
+        print('spec', x.shape)
         x = self.openl3(x)
+        print('out', x.shape)
         return self.flatten(x)
 
 def _load_spectrogram_model(input_repr):
@@ -57,8 +66,9 @@ def _load_openl3_model(input_repr, embedding_size, content_type, pretrained):
     # get the correct maxpool kernel
     maxpool_kernel = torchopenl3.POOLING_SIZES[input_repr][embedding_size]
 
-    return OpenL3Mel128(weight_path=weight_path, maxpool_kernel=maxpool_kernel,  
-                        pretrained=pretrained)
+    return OpenL3Mel128(weight_path=weight_path, maxpool_kernel=maxpool_kernel, 
+                        maxpool_stride=maxpool_kernel, pretrained=pretrained)
+
 
 class OpenL3Mel128(pl.LightningModule):
 
@@ -125,7 +135,9 @@ class OpenL3Mel128(pl.LightningModule):
         activation_7    = F.relu(batch_normalization_8)
         audio_embedding_layer_pad = F.pad(activation_7, (1, 1, 1, 1))
         audio_embedding_layer = self.audio_embedding_layer(audio_embedding_layer_pad)
+        print(audio_embedding_layer.shape)
         max_pooling2d_4 =  self.maxpool(audio_embedding_layer)
+        print(max_pooling2d_4.shape)
         # flatten_1       = max_pooling2d_4.view(max_pooling2d_4.size(0), -1)
             
         return max_pooling2d_4

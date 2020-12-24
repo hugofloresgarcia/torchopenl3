@@ -38,8 +38,8 @@ POOLING_SIZES = {
 
 def all_models():
     import itertools
-    for input_repr, embedding_size, content_type in itertools.product(torchopenl3.INPUT_REPRESENTATIONS, 
-                                                                    torchopenl3.EMBEDDING_SIZES, 
-                                                                    torchopenl3.CONTENT_TYPES):
+    for input_repr, embedding_size, content_type in itertools.product(INPUT_REPRESENTATIONS, 
+                                                                      EMBEDDING_SIZES, 
+                                                                      CONTENT_TYPES):
         model = OpenL3Embedding(input_repr=input_repr, embedding_size=embedding_size, content_type=content_type)
         yield model

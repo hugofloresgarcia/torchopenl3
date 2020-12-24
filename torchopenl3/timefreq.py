@@ -84,7 +84,8 @@ class Melspectrogram(pl.LightningModule):
         self.htk = htk
         self.return_decibel_melgram = return_decibel_melgram
         self.power_melgram = power_melgram
-        
+
+        self.trainable_fb = trainable_fb
 
         f_real, f_imag = get_stft_filterbank(self.n_fft, window='hann')
         self.n_bins = self.n_fft // 2 + 1
@@ -139,7 +140,7 @@ class Melspectrogram(pl.LightningModule):
         # NOW, take the square root to make it a power 1 melgram
         x = torch.pow(torch.sqrt(x), self.power_melgram)
 
-        x = x.view(-1, 1, 128, 199)
+        x = x.view(-1, 1, self.n_mels, 199)
         
         if self.return_decibel_melgram:
             x = amplitude_to_db(x)

@@ -5,7 +5,7 @@ import torch
 import torchopenl3
 from torchopenl3 import OpenL3Embedding
 
-import .audio_utils as audio_utils
+import torchopenl3.audio_utils as audio_utils
 
 def embed(model: OpenL3Embedding, audio: np.ndarray, sample_rate: int, hop_size: int = 1):
     """compute OpenL3 embeddings for a given audio array. 
@@ -25,7 +25,7 @@ def embed(model: OpenL3Embedding, audio: np.ndarray, sample_rate: int, hop_size:
 
     # split audio into overlapping windows as dictated by hop_size
     hop_len: int = hop_size * torchopenl3.SAMPLE_RATE
-    audio = audio_utils.window(audio, window_len=1*torchopenl3.SAMPLE_RATE, hop_len)
+    audio = audio_utils.window(audio, window_len=1*torchopenl3.SAMPLE_RATE, hop_len=hop_len)
 
     # convert to torch tensor!
     audio = torch.from_numpy(audio)

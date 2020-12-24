@@ -1,7 +1,7 @@
+import warnings
+
 import numpy as np
 import librosa
-import yaml
-import warnings
 import torch
 
 def _check_audio_types(audio: np.ndarray):
@@ -102,6 +102,7 @@ def resample(audio: np.ndarray, old_sr: int, new_sr: int = 48000) -> np.ndarray:
 
 def zero_pad(audio: np.ndarray, required_len: int = 48000) -> np.ndarray:
     """zero pad audio array to meet a multiple of required_len
+    all padding is done at the end of the array (no centering)
 
     Args:
         audio (np.ndarray): audio array w shape (channels, sample)
