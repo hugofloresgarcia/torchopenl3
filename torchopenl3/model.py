@@ -40,12 +40,9 @@ class OpenL3Embedding(pl.LightningModule):
         self.flatten = nn.Flatten()
     
     def forward(self, x):
-        print('in', x.shape)
         if not self.use_precomputed_spectrograms:
             x = self.filters(x)
-        print('spec', x.shape)
         x = self.openl3(x)
-        print('out', x.shape)
         return self.flatten(x)
 
 def _load_spectrogram_model(input_repr):
@@ -135,9 +132,7 @@ class OpenL3Mel128(pl.LightningModule):
         activation_7    = F.relu(batch_normalization_8)
         audio_embedding_layer_pad = F.pad(activation_7, (1, 1, 1, 1))
         audio_embedding_layer = self.audio_embedding_layer(audio_embedding_layer_pad)
-        print(audio_embedding_layer.shape)
         max_pooling2d_4 =  self.maxpool(audio_embedding_layer)
-        print(max_pooling2d_4.shape)
         # flatten_1       = max_pooling2d_4.view(max_pooling2d_4.size(0), -1)
             
         return max_pooling2d_4
