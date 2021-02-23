@@ -1,4 +1,5 @@
 import os
+import warnings
 
 import numpy as np
 import torch
@@ -7,7 +8,11 @@ from torchopenl3 import OpenL3Embedding
 
 import audio_utils as au
 
-def embed(model: OpenL3Embedding, audio: np.ndarray, sample_rate: int, hop_size: int = 1):
+def _check_device(device: int):
+    assert isinstance(device, int)
+    assert device >= 0
+
+def embed(model: OpenL3Embedding, audio: np.ndarray, sample_rate: int, hop_size: int = 1, device: int = None):
     """compute OpenL3 embeddings for a given audio array. 
     Args:
         model (OpenL3Embedding): OpenL3 model to use
@@ -18,7 +23,9 @@ def embed(model: OpenL3Embedding, audio: np.ndarray, sample_rate: int, hop_size:
     Returns:
         np.ndarray: embeddings with shape (frame, features)
     """
-    au._check_audio_types(audio)
+    au.core._check_audio_types(audio)
+    if au.core._is_zero(audio):
+        warnings.warn(f'provided audio array is all zeros')
     # resample, downmix, and zero pad if needed
     audio = au.resample(audio, sample_rate, torchopenl3.SAMPLE_RATE)
     audio = au.downmix(audio)
@@ -30,7 +37,11 @@ def embed(model: OpenL3Embedding, audio: np.ndarray, sample_rate: int, hop_size:
     # convert to torch tensor!
     audio = torch.from_numpy(audio)
 
-    # TODO: add GPU support
+    # GPU support
+    if device is not None:
+        model = model.to(device)
+        audio = audio.to(device)
+
     model.eval()
     with torch.no_grad():
         embeddings = model(audio)
