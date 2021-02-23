@@ -4,10 +4,10 @@ pytorch port of the openl3 audio embedding (from the [marl](https://github.com/m
 
 ### Installation
 
-Clone this repo and run `cd torchopenl3 && pip install -e .`.
+Clone this repo and run `cd torchopenl3 && pip install -e .`
 
 
-##### Test
+### Test
 
 Tests are written using `pytest`. Run `pip install pytest` to install pytest.
 run `pytest`.

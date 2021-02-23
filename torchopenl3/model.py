@@ -20,6 +20,16 @@ class OpenL3Embedding(pl.LightningModule):
                 content_type: str = 'music',
                 pretrained: bool = True, 
                 use_precomputed_spectrograms: bool = False):
+        r""" Returns an OpenL3 audio embedding model with the given characteristics. 
+
+        Args:
+            input_repr (str, optional): [description]. Input representation to use. Must be one of ('mel128', 'mel256'). Defaults to 'mel256'.
+            embedding_size (int, optional): [description]. Size of output embedding. Must be one of (512, 6144). Defaults to 512.
+            content_type (str, optional): [description]. Content type model was trained on. Must be one of ('music', 'env'). Defaults to 'music'.
+            pretrained (bool, optional): [description]. Whether to use a pretrained model. Defaults to True.
+            use_precomputed_spectrograms (bool, optional): If true, expects an input spectrogram with shape (1, 128, 199)
+                                                           Else, expects an audio array with shape (1, 48000). Defaults to False.
+        """
         super().__init__()
         utils._check_input_repr(input_repr)
         utils._check_embedding_size(embedding_size)
