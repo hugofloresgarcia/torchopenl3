@@ -12,7 +12,11 @@ setup(
     author='Hugo Flores Garcia',
     author_email='hf01049@georgiasouthern.edu',
     url='https://github.com/hugofloresgarcia/torchopenl3',
-    install_requires=['pytest', 'pytorch-lightning', 'numpy', 'torch', 'librosa'],
+    install_requires=[
+        'pytorch-lightning', 
+        'numpy', 'torch', 'librosa', 
+        'audio_utils @ git+https://github.com/hugofloresgarcia/audio_utils'
+    ],
     packages=['torchopenl3'],
     package_data={'torchopenl3': ['assets/*']},
     long_description=long_description,
