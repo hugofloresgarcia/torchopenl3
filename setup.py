@@ -15,7 +15,7 @@ setup(
     install_requires=[
         'pytorch-lightning', 
         'numpy', 'torch', 'librosa', 
-        'audio_utils @ git+https://github.com/hugofloresgarcia/audio_utils'
+        'audio_utils @ git+https://github.com/hugofloresgarcia/audio-utils'
     ],
     packages=['torchopenl3'],
     package_data={'torchopenl3': ['assets/*']},
