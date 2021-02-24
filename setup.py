@@ -18,7 +18,7 @@ setup(
         'audio_utils @ git+https://github.com/hugofloresgarcia/audio-utils'
     ],
     packages=['torchopenl3'],
-    package_data={'torchopenl3': ['assets/*']},
+    package_data={'torchopenl3': ['torchopenl3/assets/*']},
     long_description=long_description,
     long_description_content_type='text/markdown',
     keywords=[],
