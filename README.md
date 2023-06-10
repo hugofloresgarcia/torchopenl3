@@ -24,7 +24,7 @@ DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu' # use GPU if we can!
 
 # dummy audio
 SAMPLE_RATE = 48000
-audio = np.random.randn(1, SAMPLE_RATE) # 1 second of audio at 48kHz
+audio = np.random.randn(1, SAMPLE_RATE).astype(np.float32) # 1 second of audio at 48kHz
 
 model = torchopenl3.OpenL3Embedding(input_repr='mel128', 
                                     embedding_size=512, 
